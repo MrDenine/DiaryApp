@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.dagger.hilt.android") version "2.44" apply false
     id("io.realm.kotlin") version "2.0.0"
     id("kotlin-kapt")
 }
@@ -103,18 +104,15 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
 
-    // Pager - Accompanist
-    implementation(libs.accompanist.pager)
-
     // Date-Time Picker
     implementation(libs.datetime)
 
     // Message Bar Compose
-    implementation(libs.messagebarcompose)
+//    implementation(libs.messagebarcompose)
 
     // One-Tap Compose
-    implementation(libs.onetapcompose)
+//    implementation(libs.onetapcompose)
 
     // Desugar JDK
-    implementation(libs.desugar.jdk.libs)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 }

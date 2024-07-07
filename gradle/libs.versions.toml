@@ -1,6 +1,6 @@
 [versions]
 agp = "8.5.0"
-hiltComplier = "2.51.1"
+hiltComplier = "2.44"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -30,7 +30,7 @@ datetime = "0.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-hilt-complier = { module = "com.google.dagger:hilt-complier", version.ref = "hiltComplier" }
+hilt-complier = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltComplier" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
