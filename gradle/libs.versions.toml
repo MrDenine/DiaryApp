@@ -1,12 +1,12 @@
 [versions]
 agp = "8.5.0"
 hiltComplier = "2.44"
-kotlin = "1.9.0"
+kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-kotlinxCoroutinesCore = "1.7.3"
+kotlinxCoroutinesCore = "1.8.0"
 lifecycleRuntimeKtx = "2.8.2"
 activityCompose = "1.9.0"
 composeBom = "2024.04.01"
@@ -27,6 +27,10 @@ coilCompose = "2.6.0"
 accompanistPager = "0.35.1-alpha"
 desugar_jdk_libs = "2.0.4"
 datetime = "0.9.0"
+
+librarySync = "2.0.0"
+gradlePlugin = "2.0.0"
+libraryBase = "2.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,8 +66,12 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 accompanist-pager = { group = "com.google.accompanist", name = "accompanist-pager", version.ref = "accompanistPager" }
 desugar_jdk_libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 datetime = { group = "io.github.vanpra.compose-material-dialogs", name = "datetime", version.ref = "datetime" }
+library-sync = { group = "io.realm.kotlin", name = "library-sync", version.ref = "librarySync" }
+gradle-plugin = { group = "io.realm.kotlin", name = "gradle-plugin", version.ref = "gradlePlugin" }
+library-base = { group = "io.realm.kotlin", name = "library-base", version.ref = "libraryBase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
 

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.jetbrains.kotlin.compose)
     id("com.google.dagger.hilt.android") version "2.44" apply false
     id("io.realm.kotlin") version "2.0.0"
     id("kotlin-kapt")
@@ -63,7 +64,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.google.services)
-
+    implementation(libs.gradle.plugin)
+    implementation(libs.library.base)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -79,7 +81,7 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.storage.ktx)
 
-    // Room cCompose
+    // Room Compose
     kapt("androidx.room:room-compiler:2.6.1")
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
@@ -91,6 +93,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Mongo DB Realm
+    implementation(libs.library.sync)
     implementation(libs.kotlinx.coroutines.core)
 
     // Dagger Hilt
@@ -108,10 +111,10 @@ dependencies {
     implementation(libs.datetime)
 
     // Message Bar Compose
-//    implementation(libs.messagebarcompose)
+    implementation(libs.messagebarcompose)
 
     // One-Tap Compose
-//    implementation(libs.onetapcompose)
+    implementation(libs.onetapcompose)
 
     // Desugar JDK
     coreLibraryDesugaring(libs.desugar.jdk.libs)
