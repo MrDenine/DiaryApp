@@ -1,5 +1,6 @@
 package com.denine.diaryapp.presentation.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +38,7 @@ import com.denine.diaryapp.model.Diary
 import com.denine.diaryapp.model.Mood
 import com.denine.diaryapp.ui.theme.Elevation
 import com.denine.diaryapp.utils.toInstant
+import io.realm.kotlin.ext.realmListOf
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -49,6 +52,7 @@ fun DiaryHolder(
 ){
     val localDensity = LocalDensity.current
     var componentHeight by remember {mutableStateOf(0.dp)}
+    var galleryOpened by remember {mutableStateOf(false)}
 
     Row(
         modifier = Modifier
@@ -92,6 +96,22 @@ fun DiaryHolder(
                     maxLines = 5,
                     overflow = TextOverflow.Ellipsis
                 )
+                if(diary.images.isNotEmpty()){
+                    ShowGalleryButton(
+                        galleryOpened = galleryOpened,
+                        galleryLoading = false,
+                        onClick = {
+                            galleryOpened = !galleryOpened
+                        }
+                    )
+                }
+
+                AnimatedVisibility(visible = galleryOpened) {
+                    Column (modifier = Modifier.padding(all = 14.dp)) {
+                        Gallery(images = diary.images)
+                    }
+                }
+
             }
         }
     }
@@ -134,11 +154,28 @@ fun DiaryHeader(moodName: String, time: Instant) {
 }
 
 @Composable
+fun ShowGalleryButton(
+    galleryOpened: Boolean,
+    galleryLoading: Boolean,
+    onClick: () -> Unit
+) {
+    TextButton(onClick = onClick) {
+        Text(
+            text = if (galleryOpened)
+                if (galleryLoading) "Loading" else "Hide Gallery"
+            else "Show Gallery",
+            style = TextStyle(fontSize = MaterialTheme.typography.bodySmall.fontSize)
+        )
+    }
+}
+
+@Composable
 @Preview(showBackground = true)
 fun DiaryHolderPreview(){
     DiaryHolder(diary = Diary().apply {
         title = "THAI STUDENT DIARIES"
         description = "Keeping a diary, whether it is for seven days or the whole term, is a good way for the students to practice writing about every-day events in their lives. It is also a good way for them to use past tense and certainly more interesting than writing some of the sentences found in grammar books: “The girl touched the window yesterday” and “They opened the door this morning” can get boring after a while."
         mood = Mood.Happy.name
+        images = realmListOf("","")
     }, onClick = {})
 }
