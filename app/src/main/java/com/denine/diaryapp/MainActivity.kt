@@ -3,10 +3,10 @@ package com.denine.diaryapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Surface
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
+import com.denine.diaryapp.data.repository.MongoDB
 import com.denine.diaryapp.navigation.Screen
 import com.denine.diaryapp.navigation.SetupNavGraph
 import com.denine.diaryapp.ui.theme.DiaryAppTheme
@@ -18,6 +18,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         WindowCompat.setDecorFitsSystemWindows(window,false)
+        MongoDB.configureTheRealm()
         setContent {
             DiaryAppTheme {
                 val navController = rememberNavController()

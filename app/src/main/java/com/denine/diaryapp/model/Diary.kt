@@ -11,7 +11,7 @@ import io.realm.kotlin.types.annotations.PrimaryKey
 import org.mongodb.kbson.ObjectId
 import java.time.Instant
 
-class Diary : RealmObject {
+open class Diary : RealmObject {
     @PrimaryKey
     var _id: ObjectId = ObjectId.invoke()
     var mood: String = Mood.Neutral.name
