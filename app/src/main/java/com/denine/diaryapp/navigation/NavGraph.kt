@@ -3,6 +3,7 @@ package com.denine.diaryapp.navigation
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,10 +16,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.denine.diaryapp.model.RequestState
 import com.denine.diaryapp.presentation.components.DisplayAlertDialog
 import com.denine.diaryapp.presentation.screens.auth.AuthenticationScreen
 import com.denine.diaryapp.presentation.screens.auth.AuthenticationViewModel
 import com.denine.diaryapp.presentation.screens.home.HomeScreen
+import com.denine.diaryapp.presentation.screens.home.HomeViewModel
 import com.denine.diaryapp.utils.Constants.APP_ID
 import com.denine.diaryapp.utils.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.stevdzasan.messagebar.rememberMessageBarState
@@ -29,7 +32,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun SetupNavGraph(startDestination: String,navController: NavHostController){
+fun SetupNavGraph(
+    startDestination: String,
+    navController: NavHostController,
+    onDataLoaded: () -> Unit
+){
     NavHost(
         startDestination = startDestination ,
         navController = navController
@@ -39,6 +46,7 @@ fun SetupNavGraph(startDestination: String,navController: NavHostController){
                 navController.popBackStack()
                 navController.navigate(Screen.Home.route)
             },
+            onDataLoaded = onDataLoaded
         )
         homeRoute(
             navigateToHome = {
@@ -47,7 +55,8 @@ fun SetupNavGraph(startDestination: String,navController: NavHostController){
             navigateToAuth = {
                 navController.popBackStack()
                 navController.navigate(Screen.Authentication.route)
-            }
+            },
+            onDataLoaded = onDataLoaded
         )
         writeRoute()
     }
@@ -56,6 +65,7 @@ fun SetupNavGraph(startDestination: String,navController: NavHostController){
 
 fun NavGraphBuilder.authenticationRoute(
     navigateToHome: () -> Unit,
+    onDataLoaded: () -> Unit
 ){
     composable(route = Screen.Authentication.route){
         val viewModel : AuthenticationViewModel = viewModel()
@@ -63,6 +73,10 @@ fun NavGraphBuilder.authenticationRoute(
         val loadingState by viewModel.loadingState
         val oneTapState = rememberOneTapSignInState()
         val messageBarState = rememberMessageBarState()
+
+        LaunchedEffect (key1 = Unit) {
+            onDataLoaded()
+        }
 
         AuthenticationScreen(
             authenticated = authenticated,
@@ -100,15 +114,26 @@ fun NavGraphBuilder.authenticationRoute(
 
 fun NavGraphBuilder.homeRoute(
     navigateToHome: () -> Unit,
-    navigateToAuth: () -> Unit
+    navigateToAuth: () -> Unit,
+    onDataLoaded: () -> Unit
 ){
     composable(route = Screen.Home.route){
+        val viewModel: HomeViewModel = viewModel()
+        val diaries by viewModel.diaries
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         var signOutDialogOpened by remember {
             mutableStateOf(false)
         }
         val scope = rememberCoroutineScope()
+
+        LaunchedEffect (key1 = diaries) {
+            if(diaries !is RequestState.Loading){
+                onDataLoaded()
+            }
+        }
+
         HomeScreen(
+            diaries = diaries,
             drawerState = drawerState,
             onMenuClicked = {
                 scope.launch {
@@ -118,7 +143,7 @@ fun NavGraphBuilder.homeRoute(
             onSignOutClicked = {
                 signOutDialogOpened = true
             },
-            navigateToWrite = navigateToHome
+            navigateToWrite = navigateToHome,
         )
 
         DisplayAlertDialog(

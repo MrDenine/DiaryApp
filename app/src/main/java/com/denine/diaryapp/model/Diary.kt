@@ -13,11 +13,11 @@ import java.time.Instant
 
 open class Diary : RealmObject {
     @PrimaryKey
-    var _id: ObjectId = ObjectId.invoke()
-    var mood: String = Mood.Neutral.name
+    var _id: ObjectId = ObjectId()
     var ownerId: String = ""
+    var mood: String = Mood.Neutral.name
     var title: String = ""
     var description: String = ""
     var images: RealmList<String> = realmListOf()
-    var date: RealmInstant = Instant.now().toRealmInstant()
+    var date: RealmInstant = RealmInstant.now()
 }

@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -62,16 +63,17 @@ fun Gallery(
                         .data(image)
                         .crossfade(true)
                         .build(),
+                    contentScale = ContentScale.Crop,
                     contentDescription = "Gallery Image"
                 )
                 Spacer(modifier = Modifier.width(spaceBetween))
-                if(remainingImages.value > 0){
-                    LastImageOverlay(
-                        imageSize = imageSize,
-                        imageShape = imageShape,
-                        remainingImages = remainingImages.value
-                    )
-                }
+            }
+            if(remainingImages.value > 0){
+                LastImageOverlay(
+                    imageSize = imageSize,
+                    imageShape = imageShape,
+                    remainingImages = remainingImages.value
+                )
             }
         }
     }
