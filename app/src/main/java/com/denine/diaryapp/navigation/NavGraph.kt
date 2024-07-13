@@ -1,5 +1,7 @@
 package com.denine.diaryapp.navigation
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -16,12 +18,15 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.denine.diaryapp.model.Diary
+import com.denine.diaryapp.model.Mood
 import com.denine.diaryapp.model.RequestState
 import com.denine.diaryapp.presentation.components.DisplayAlertDialog
 import com.denine.diaryapp.presentation.screens.auth.AuthenticationScreen
 import com.denine.diaryapp.presentation.screens.auth.AuthenticationViewModel
 import com.denine.diaryapp.presentation.screens.home.HomeScreen
 import com.denine.diaryapp.presentation.screens.home.HomeViewModel
+import com.denine.diaryapp.presentation.screens.write.WriteScreen
 import com.denine.diaryapp.utils.Constants.APP_ID
 import com.denine.diaryapp.utils.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.stevdzasan.messagebar.rememberMessageBarState
@@ -58,7 +63,11 @@ fun SetupNavGraph(
             },
             onDataLoaded = onDataLoaded
         )
-        writeRoute()
+        writeRoute(
+            onBackPressed = {
+                navController.popBackStack()
+            }
+        )
     }
 
 }
@@ -166,7 +175,8 @@ fun NavGraphBuilder.homeRoute(
     }
 }
 
-fun NavGraphBuilder.writeRoute(){
+@OptIn(ExperimentalFoundationApi::class)
+fun NavGraphBuilder.writeRoute(onBackPressed: () -> Unit) {
     composable(
         route = Screen.Write.route,
         arguments = listOf(navArgument(name = WRITE_SCREEN_ARGUMENT_KEY){
@@ -175,6 +185,13 @@ fun NavGraphBuilder.writeRoute(){
             defaultValue = null
         })
     ){
+        val pagerState = rememberPagerState(pageCount = {Mood.entries.size})
 
+        WriteScreen(
+            selectedDiary = null,
+            onDeletedConfirm = {},
+            onBackPressed = onBackPressed,
+            pagerState = pagerState
+        )
     }
 }
