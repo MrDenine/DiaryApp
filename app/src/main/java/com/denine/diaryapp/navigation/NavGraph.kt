@@ -1,5 +1,6 @@
 package com.denine.diaryapp.navigation
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerValue
@@ -27,6 +28,7 @@ import com.denine.diaryapp.presentation.screens.auth.AuthenticationViewModel
 import com.denine.diaryapp.presentation.screens.home.HomeScreen
 import com.denine.diaryapp.presentation.screens.home.HomeViewModel
 import com.denine.diaryapp.presentation.screens.write.WriteScreen
+import com.denine.diaryapp.presentation.screens.write.WriteViewModel
 import com.denine.diaryapp.utils.Constants.APP_ID
 import com.denine.diaryapp.utils.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.stevdzasan.messagebar.rememberMessageBarState
@@ -54,14 +56,18 @@ fun SetupNavGraph(
             onDataLoaded = onDataLoaded
         )
         homeRoute(
-            navigateToHome = {
+            navigateToWrite = {
                 navController.navigate(Screen.Write.route)
+            },
+            navigateToWriteWithArgs = {
+                navController.navigate(Screen.Write.passDiaryId(diaryId = it))
             },
             navigateToAuth = {
                 navController.popBackStack()
                 navController.navigate(Screen.Authentication.route)
             },
-            onDataLoaded = onDataLoaded
+            onDataLoaded = onDataLoaded,
+
         )
         writeRoute(
             onBackPressed = {
@@ -122,7 +128,8 @@ fun NavGraphBuilder.authenticationRoute(
 }
 
 fun NavGraphBuilder.homeRoute(
-    navigateToHome: () -> Unit,
+    navigateToWriteWithArgs: (String) -> Unit,
+    navigateToWrite: () -> Unit,
     navigateToAuth: () -> Unit,
     onDataLoaded: () -> Unit
 ){
@@ -152,7 +159,8 @@ fun NavGraphBuilder.homeRoute(
             onSignOutClicked = {
                 signOutDialogOpened = true
             },
-            navigateToWrite = navigateToHome,
+            navigateToWrite = navigateToWrite,
+            navigateToWriteWithArgs = navigateToWriteWithArgs
         )
 
         DisplayAlertDialog(
@@ -185,13 +193,19 @@ fun NavGraphBuilder.writeRoute(onBackPressed: () -> Unit) {
             defaultValue = null
         })
     ){
+        val viewModel : WriteViewModel = viewModel()
+        val uiState = viewModel.uiState
         val pagerState = rememberPagerState(pageCount = {Mood.entries.size})
+
+        LaunchedEffect (key1 = uiState) {
+            Log.d("SelectedDiary","${uiState.selectedDiaryId}")
+        }
 
         WriteScreen(
             selectedDiary = null,
             onDeletedConfirm = {},
             onBackPressed = onBackPressed,
-            pagerState = pagerState
+            pagerState = pagerState,
         )
     }
 }
