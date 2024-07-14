@@ -1,7 +1,11 @@
 package com.denine.diaryapp.presentation.screens.write
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
@@ -19,20 +23,58 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.denine.diaryapp.model.Diary
 import com.denine.diaryapp.presentation.components.DisplayAlertDialog
+import com.denine.diaryapp.utils.toInstant
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WriteTopBar(
+    moodName:()-> String,
     onBackPressed: () -> Unit,
     selectedDiary: Diary?,
     onDeleteConfirmed: () -> Unit
 ){
+
+
+    val currentDate by remember { mutableStateOf(LocalDate.now()) }
+    val currentTime by remember { mutableStateOf(LocalTime.now()) }
+
+    val formattedDate = remember(key1 = currentDate) {
+        DateTimeFormatter
+            .ofPattern("dd MMM yyyy")
+            .format(currentDate).uppercase()
+    }
+    val formattedTime = remember(key1 = currentTime) {
+        DateTimeFormatter
+            .ofPattern("hh:mm a")
+            .format(currentTime).uppercase()
+    }
+
+
+    val selectedDiaryDateTime = remember(selectedDiary) {
+        if(selectedDiary != null) {
+            SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+                .format(Date.from(selectedDiary.date.toInstant())).uppercase()
+        } else {
+            "Unknown"
+        }
+
+    }
+
     CenterAlignedTopAppBar(
         navigationIcon = {
             IconButton(onClick = {onBackPressed() }) {
@@ -43,22 +85,20 @@ fun WriteTopBar(
             }
         },
         title = {
-            Column (
-                modifier = Modifier.fillMaxWidth(),
-            ) {
+            Column {
+
                 Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Happy",
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    text = moodName(),
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight.Bold
                     ),
                     textAlign = TextAlign.Center
                 )
-
                 Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "13 JUL 2024, 10:00 PM",
+                    text = if(selectedDiary != null) selectedDiaryDateTime
+                    else "$formattedDate $formattedTime",
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.bodySmall.fontSize
                     ),
@@ -84,6 +124,7 @@ fun WriteTopBar(
 
     )
 }
+
 
 @Composable
 fun DeleteDiaryAction(
