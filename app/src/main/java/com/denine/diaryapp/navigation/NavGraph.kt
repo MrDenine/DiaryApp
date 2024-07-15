@@ -1,6 +1,7 @@
 package com.denine.diaryapp.navigation
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerValue
@@ -13,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -38,6 +40,7 @@ import io.realm.kotlin.mongodb.App
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.ZonedDateTime
 
 @Composable
 fun SetupNavGraph(
@@ -71,7 +74,7 @@ fun SetupNavGraph(
 
         )
         writeRoute(
-            onBackPressed = {
+            navigateBack = {
                 navController.popBackStack()
             }
         )
@@ -185,7 +188,7 @@ fun NavGraphBuilder.homeRoute(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-fun NavGraphBuilder.writeRoute(onBackPressed: () -> Unit) {
+fun NavGraphBuilder.writeRoute(navigateBack: () -> Unit) {
     composable(
         route = Screen.Write.route,
         arguments = listOf(navArgument(name = WRITE_SCREEN_ARGUMENT_KEY){
@@ -194,6 +197,8 @@ fun NavGraphBuilder.writeRoute(onBackPressed: () -> Unit) {
             defaultValue = null
         })
     ){
+        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
         val viewModel : WriteViewModel = viewModel()
         val uiState = viewModel.uiState
         val pagerState = rememberPagerState(pageCount = {Mood.entries.size})
@@ -213,10 +218,41 @@ fun NavGraphBuilder.writeRoute(onBackPressed: () -> Unit) {
             onDescriptionChange = {
                 viewModel.setDescription(description = it)
             },
-            onDeletedConfirm = {},
-            onBackPressed = onBackPressed,
+            onDateTimeUpdated = {
+                viewModel.updateDateTime(zonedDateTime = it)
+            },
+            onDeletedConfirm = {
+                viewModel.deleteDiary(
+                    onSuccess = {
+                        Toast.makeText(
+                            context,
+                            "Deleted",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        navigateBack()
+                    },
+                    onError = { message ->
+                        Toast.makeText(
+                            context,
+                            message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                )
+            },
+            onBackPressed = navigateBack,
             pagerState = pagerState,
             uiState = uiState,
+            onSaveClicked = {
+                scope.launch (Dispatchers.IO) {
+                    viewModel.upsertDiary(
+                        diary = it.apply { mood = Mood.entries[pageNumber].name},
+                        onSuccess = {navigateBack()} ,
+                        onError = {}
+                    )
+                }
+            },
+
         )
     }
 }

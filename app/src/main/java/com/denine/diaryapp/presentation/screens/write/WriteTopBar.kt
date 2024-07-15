@@ -1,13 +1,9 @@
 package com.denine.diaryapp.presentation.screens.write
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -22,20 +18,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.denine.diaryapp.model.Diary
 import com.denine.diaryapp.presentation.components.DisplayAlertDialog
 import com.denine.diaryapp.utils.toInstant
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import com.maxkeppeler.sheets.clock.ClockDialog
+import com.maxkeppeler.sheets.clock.models.ClockSelection
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -44,20 +48,27 @@ import java.util.Locale
 @Composable
 fun WriteTopBar(
     moodName:()-> String,
-    onBackPressed: () -> Unit,
     selectedDiary: Diary?,
+    onDateTimeUpdated:(ZonedDateTime) -> Unit,
+    onBackPressed: () -> Unit,
     onDeleteConfirmed: () -> Unit
 ){
-
-
-    val currentDate by remember { mutableStateOf(LocalDate.now()) }
-    val currentTime by remember { mutableStateOf(LocalTime.now()) }
+    val scope = rememberCoroutineScope()
+    val dateDialogState = rememberUseCaseState()
+    val timeDialogState = rememberUseCaseState()
+    var currentDate by remember { mutableStateOf(LocalDate.now()) }
+    var currentTime by remember { mutableStateOf(LocalTime.now()) }
 
     val formattedDate = remember(key1 = currentDate) {
         DateTimeFormatter
             .ofPattern("dd MMM yyyy")
             .format(currentDate).uppercase()
     }
+
+    var dateTimeUpdated by remember {
+        mutableStateOf(false)
+    }
+
     val formattedTime = remember(key1 = currentTime) {
         DateTimeFormatter
             .ofPattern("hh:mm a")
@@ -97,8 +108,10 @@ fun WriteTopBar(
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = if(selectedDiary != null) selectedDiaryDateTime
-                    else "$formattedDate $formattedTime",
+                    text =
+                        if(selectedDiary != null && dateTimeUpdated) "$formattedDate $formattedTime"
+                        else if (selectedDiary != null) selectedDiaryDateTime
+                        else "$formattedDate $formattedTime",
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.bodySmall.fontSize
                     ),
@@ -107,22 +120,66 @@ fun WriteTopBar(
             }
         },
         actions = {
-            IconButton(onClick = {onBackPressed() }) {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = "Date Icon",
-                    tint = MaterialTheme.colorScheme.surface
-                )
+            if(dateTimeUpdated){
+                IconButton(onClick = {
+                    currentDate = LocalDate.now()
+                    currentTime = LocalTime.now()
+                    dateTimeUpdated = false
+                    onDateTimeUpdated(
+                        ZonedDateTime.of(
+                            currentDate,
+                            currentTime,
+                            ZoneId.systemDefault()
+                        )
+                    )
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close Icon",
+                    )
+                }
+            } else {
+                IconButton(onClick = { scope.launch {dateDialogState.show() }}) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Date Icon",
+                    )
+                }
             }
-            if(selectedDiary !=null) {
+
+            if(selectedDiary != null) {
                 DeleteDiaryAction(
                     selectedDiary = selectedDiary,
                     onDeleteConfirmed = {onDeleteConfirmed()}
                 )
             }
         }
-
     )
+    
+    CalendarDialog(
+        state = dateDialogState,
+        selection = CalendarSelection.Date {localDate ->
+            currentDate = localDate
+            timeDialogState.show()
+        },
+        config = CalendarConfig(monthSelection = true, yearSelection = true)
+    )
+
+    ClockDialog(
+        state = timeDialogState,
+        selection = ClockSelection.HoursMinutes { hours, minutes ->
+            currentTime = LocalTime.of(hours,minutes)
+            dateTimeUpdated = true
+            onDateTimeUpdated(
+                ZonedDateTime.of(
+                    currentDate,
+                    currentTime,
+                    ZoneId.systemDefault()
+                )
+            )
+        }
+    )
+    
 }
 
 

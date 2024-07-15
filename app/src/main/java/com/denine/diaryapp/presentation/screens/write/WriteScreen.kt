@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.denine.diaryapp.model.Diary
 import com.denine.diaryapp.model.Mood
+import java.time.ZonedDateTime
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -23,7 +24,9 @@ fun WriteScreen(
     onTitleChange:(String) -> Unit,
     onDescriptionChange:(String) -> Unit,
     onDeletedConfirm: ()-> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onSaveClicked: (Diary) -> Unit,
+    onDateTimeUpdated: (ZonedDateTime) -> Unit,
 ){
     LaunchedEffect (key1 = uiState.mood) {
         pagerState.scrollToPage(Mood.valueOf(uiState.mood.name).ordinal)
@@ -34,17 +37,20 @@ fun WriteScreen(
                 onBackPressed = onBackPressed,
                 onDeleteConfirmed = onDeletedConfirm,
                 selectedDiary = uiState.selectedDiary,
-                moodName = moodName
+                moodName = moodName,
+                onDateTimeUpdated = onDateTimeUpdated
             )
         },
         content = {
             WriteContent(
                 pagerState = pagerState,
+                uiState = uiState,
                 title = uiState.title,
                 onTitleChanged = onTitleChange,
                 description = uiState.description,
                 onDescriptionChanged = onDescriptionChange,
-                paddingValues = it
+                paddingValues = it,
+                onSaveClicked = onSaveClicked
             )
         }
     )

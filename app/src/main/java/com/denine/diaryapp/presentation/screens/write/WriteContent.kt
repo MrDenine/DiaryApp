@@ -1,5 +1,6 @@
 package com.denine.diaryapp.presentation.screens.write
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.denine.diaryapp.model.Diary
 import com.denine.diaryapp.model.Mood
 import kotlinx.coroutines.launch
 
@@ -42,15 +44,18 @@ import kotlinx.coroutines.launch
 @Composable
 fun WriteContent(
     pagerState: PagerState,
+    uiState: UiState,
     title: String,
     onTitleChanged: (String) -> Unit,
     description: String,
     onDescriptionChanged: (String) -> Unit,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    onSaveClicked: (Diary) -> Unit
 ){
     val stateScroll = rememberScrollState()
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
 
     Column (
         modifier = Modifier
@@ -146,6 +151,20 @@ fun WriteContent(
                     .fillMaxWidth()
                     .height(54.dp),
                 onClick = {
+                    if(uiState.title.isNotEmpty() && uiState.description.isNotEmpty()){
+                        onSaveClicked(
+                            Diary().apply {
+                                this.title = uiState.title
+                                this.description = uiState.description
+                            }
+                        )
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Field cannot be empty",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 },
                 shape = Shapes().small
             ) {

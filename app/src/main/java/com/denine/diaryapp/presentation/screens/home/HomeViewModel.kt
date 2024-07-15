@@ -31,7 +31,7 @@ class HomeViewModel: ViewModel() {
             if (::filteredDiariesJob.isInitialized) {
                 filteredDiariesJob.cancelAndJoin()
             }
-            MongoDB.getAllDiaries().debounce(2000).collect { result ->
+            MongoDB.getAllDiaries().collect { result ->
                 diaries.value = result
             }
         }

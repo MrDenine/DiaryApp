@@ -14,9 +14,9 @@ import com.denine.diaryapp.utils.Constants.APP_ID
 import io.realm.kotlin.mongodb.App
 
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private var keepSplashOpened = true;
 
-        var keepSplashOpened = true;
+    override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         installSplashScreen().setKeepOnScreenCondition{
