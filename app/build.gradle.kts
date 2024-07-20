@@ -5,6 +5,7 @@ plugins {
     id("com.google.dagger.hilt.android") version "2.44" apply false
     id("io.realm.kotlin") version "2.0.0"
     id("kotlin-kapt")
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -70,6 +71,7 @@ dependencies {
     implementation(libs.calendar)
     implementation(libs.clock)
     implementation(libs.core)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

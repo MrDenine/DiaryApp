@@ -34,6 +34,8 @@ libraryBase = "2.0.0"
 core = "1.3.0"
 calendar = "1.3.0"
 clock = "1.3.0"
+googleGmsGoogleServices = "4.4.2"
+firebaseAuth = "23.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -75,9 +77,11 @@ library-base = { group = "io.realm.kotlin", name = "library-base", version.ref =
 core = { group = "com.maxkeppeler.sheets-compose-dialogs", name = "core", version.ref = "core" }
 calendar = { group = "com.maxkeppeler.sheets-compose-dialogs", name = "calendar", version.ref = "calendar" }
 clock = { group = "com.maxkeppeler.sheets-compose-dialogs", name = "clock", version.ref = "clock" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin"}
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 
