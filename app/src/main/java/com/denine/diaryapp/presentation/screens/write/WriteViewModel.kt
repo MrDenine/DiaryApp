@@ -1,5 +1,6 @@
 package com.denine.diaryapp.presentation.screens.write
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,10 +9,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denine.diaryapp.data.repository.MongoDB
 import com.denine.diaryapp.model.Diary
+import com.denine.diaryapp.model.GalleryImage
+import com.denine.diaryapp.model.GalleryState
 import com.denine.diaryapp.model.Mood
 import com.denine.diaryapp.model.RequestState
+import com.denine.diaryapp.model.rememberGalleryState
 import com.denine.diaryapp.utils.Constants.WRITE_SCREEN_ARGUMENT_KEY
+import com.denine.diaryapp.utils.fetchImagesFromFirebase
 import com.denine.diaryapp.utils.toRealmInstant
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -25,7 +34,7 @@ import java.time.ZonedDateTime
 class WriteViewModel (
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
+    val galleryState = GalleryState()
     var uiState by mutableStateOf(UiState())
         private set
 
@@ -54,6 +63,20 @@ class WriteViewModel (
                             setSelectedDiary(diary = diary.data)
                             setTitle(title = diary.data.title)
                             setDescription(description = diary.data.description)
+
+                            fetchImagesFromFirebase(
+                                remoteImagePaths = diary.data.images,
+                                onImageDownload = { downloadedImage ->
+                                    galleryState.addImage(
+                                        GalleryImage(
+                                            image = downloadedImage,
+                                            remoteImagePath = extractImagePath(
+                                                fullImageUrl = downloadedImage.toString()
+                                            ),
+                                        )
+                                    )
+                                }
+                            )
                         }
                     }
 
@@ -72,6 +95,7 @@ class WriteViewModel (
             }
         })
         if (result is RequestState.Success) {
+            uploadImagesToFirebase()
             withContext(Dispatchers.Main) {
                 onSuccess()
             }
@@ -96,6 +120,7 @@ class WriteViewModel (
             }
         })
         if (result is RequestState.Success) {
+            uploadImagesToFirebase()
             withContext(Dispatchers.Main) {
                 onSuccess()
             }
@@ -158,6 +183,32 @@ class WriteViewModel (
 
     fun updateDateTime(zonedDateTime: ZonedDateTime) {
         uiState = uiState.copy(updatedDateTime = zonedDateTime.toInstant().toRealmInstant())
+    }
+
+    fun addImage(image: Uri, imageType:String){
+        val remoteImagePath = "images/${FirebaseAuth.getInstance().currentUser?.uid}/" +
+                "${image.lastPathSegment}-${System.currentTimeMillis()}.$imageType"
+
+        galleryState.addImage(
+            GalleryImage(
+                image = image,
+                remoteImagePath = remoteImagePath
+            )
+        )
+    }
+
+    private fun uploadImagesToFirebase(){
+        val storage = FirebaseStorage.getInstance().reference
+        galleryState.images.forEach {  galleryImage ->
+            val imagePath = storage.child(galleryImage.remoteImagePath)
+            imagePath.putFile(galleryImage.image)
+        }
+    }
+
+    private fun extractImagePath(fullImageUrl: String): String {
+        val chunks = fullImageUrl.split("%2F")
+        val imageName = chunks[2].split("?").first()
+        return "images/${Firebase.auth.currentUser?.uid}/$imageName"
     }
 
 }

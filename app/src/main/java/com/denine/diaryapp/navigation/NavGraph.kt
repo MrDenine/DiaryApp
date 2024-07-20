@@ -206,9 +206,9 @@ fun NavGraphBuilder.writeRoute(navigateBack: () -> Unit) {
         val scope = rememberCoroutineScope()
         val context = LocalContext.current
         val viewModel : WriteViewModel = viewModel()
+        val galleryState = viewModel.galleryState
         val uiState = viewModel.uiState
         val pagerState = rememberPagerState(pageCount = {Mood.entries.size})
-        val galleryState = rememberGalleryState()
         val pageNumber by remember {
             derivedStateOf { pagerState.currentPage }
         }
@@ -248,11 +248,10 @@ fun NavGraphBuilder.writeRoute(navigateBack: () -> Unit) {
                 )
             },
             onImageSelect = {
-                galleryState.addImage(
-                    GalleryImage(
-                        image = it,
-                        remoteImagePath = ""
-                    )
+                val type = context.contentResolver.getType(it)?.split("/")?.last() ?: "jpg"
+                viewModel.addImage(
+                    image = it,
+                    imageType = type
                 )
             },
             onBackPressed = navigateBack,
