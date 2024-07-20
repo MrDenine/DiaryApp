@@ -23,8 +23,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.denine.diaryapp.model.Diary
+import com.denine.diaryapp.model.GalleryImage
 import com.denine.diaryapp.model.Mood
 import com.denine.diaryapp.model.RequestState
+import com.denine.diaryapp.model.rememberGalleryState
 import com.denine.diaryapp.presentation.components.DisplayAlertDialog
 import com.denine.diaryapp.presentation.screens.auth.AuthenticationScreen
 import com.denine.diaryapp.presentation.screens.auth.AuthenticationViewModel
@@ -202,6 +204,7 @@ fun NavGraphBuilder.writeRoute(navigateBack: () -> Unit) {
         val viewModel : WriteViewModel = viewModel()
         val uiState = viewModel.uiState
         val pagerState = rememberPagerState(pageCount = {Mood.entries.size})
+        val galleryState = rememberGalleryState()
         val pageNumber by remember {
             derivedStateOf { pagerState.currentPage }
         }
@@ -240,8 +243,17 @@ fun NavGraphBuilder.writeRoute(navigateBack: () -> Unit) {
                     }
                 )
             },
+            onImageSelect = {
+                galleryState.addImage(
+                    GalleryImage(
+                        image = it,
+                        remoteImagePath = ""
+                    )
+                )
+            },
             onBackPressed = navigateBack,
             pagerState = pagerState,
+            galleryState = galleryState,
             uiState = uiState,
             onSaveClicked = {
                 scope.launch (Dispatchers.IO) {

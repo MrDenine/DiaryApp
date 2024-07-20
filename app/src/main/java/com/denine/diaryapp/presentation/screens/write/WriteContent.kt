@@ -1,5 +1,6 @@
 package com.denine.diaryapp.presentation.screens.write
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -39,20 +40,24 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.denine.diaryapp.model.Diary
+import com.denine.diaryapp.model.GalleryState
 import com.denine.diaryapp.model.Mood
+import com.denine.diaryapp.presentation.components.GalleryUploader
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WriteContent(
     pagerState: PagerState,
+    galleryState: GalleryState,
     uiState: UiState,
     title: String,
     onTitleChanged: (String) -> Unit,
     description: String,
     onDescriptionChanged: (String) -> Unit,
     paddingValues: PaddingValues,
-    onSaveClicked: (Diary) -> Unit
+    onSaveClicked: (Diary) -> Unit,
+    onImageSelect: (Uri) -> Unit
 ){
     val stateScroll = rememberScrollState()
     val scope = rememberCoroutineScope()
@@ -148,6 +153,13 @@ fun WriteContent(
             )
         }
         Column (verticalArrangement = Arrangement.Bottom) {
+            Spacer(modifier = Modifier.height(12.dp))
+            GalleryUploader(
+                galleryState = galleryState ,
+                onAddClicked = { /*TODO*/ },
+                onImageSelect = onImageSelect,
+                onImageClicked = {}
+            )
             Spacer(modifier = Modifier.height(12.dp))
             Button(
                 modifier = Modifier
