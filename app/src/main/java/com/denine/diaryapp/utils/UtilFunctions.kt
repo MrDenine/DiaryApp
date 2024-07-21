@@ -3,6 +3,7 @@ package com.denine.diaryapp.utils
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.denine.diaryapp.data.database.entity.ImageToDelete
@@ -61,6 +62,7 @@ fun retryUploadingImageToFirebase(
     onSuccess: () -> Unit
 ) {
     val storage = FirebaseStorage.getInstance().reference
+
     storage.child(imageToUpload.remoteImagePath).putFile(
         imageToUpload.imageUri.toUri(),
         storageMetadata { },

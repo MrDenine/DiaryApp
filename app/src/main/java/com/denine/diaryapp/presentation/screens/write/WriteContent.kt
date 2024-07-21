@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.denine.diaryapp.model.Diary
+import com.denine.diaryapp.model.GalleryImage
 import com.denine.diaryapp.model.GalleryState
 import com.denine.diaryapp.model.Mood
 import com.denine.diaryapp.presentation.components.GalleryUploader
@@ -58,7 +59,8 @@ fun WriteContent(
     onDescriptionChanged: (String) -> Unit,
     paddingValues: PaddingValues,
     onSaveClicked: (Diary) -> Unit,
-    onImageSelect: (Uri) -> Unit
+    onImageSelect: (Uri) -> Unit,
+    onImageClick: (GalleryImage)->Unit
 ){
     val stateScroll = rememberScrollState()
     val scope = rememberCoroutineScope()
@@ -157,9 +159,9 @@ fun WriteContent(
             Spacer(modifier = Modifier.height(12.dp))
             GalleryUploader(
                 galleryState = galleryState ,
-                onAddClicked = { /*TODO*/ },
+                onAddClicked = { focusManager.clearFocus() },
                 onImageSelect = onImageSelect,
-                onImageClicked = {}
+                onImageClicked = onImageClick
             )
             Spacer(modifier = Modifier.height(12.dp))
             Button(

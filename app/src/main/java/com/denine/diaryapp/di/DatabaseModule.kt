@@ -12,9 +12,8 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn (SingletonComponent::class)
+@InstallIn(SingletonComponent::class)
 object DatabaseModule {
-
     @Provides
     @Singleton
     fun provideDatabase(
@@ -27,8 +26,8 @@ object DatabaseModule {
         ).build()
     }
 
-    @Provides
     @Singleton
+    @Provides
     fun provideFirstDao(database: ImagesDatabase) = database.imageToUploadDao()
 
     @Singleton

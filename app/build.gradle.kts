@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.compose)
-    id("com.google.dagger.hilt.android") version "2.44" apply false
+    alias(libs.plugins.dagger.hilt)
     id("io.realm.kotlin") version "2.0.0"
     id("kotlin-kapt")
     alias(libs.plugins.google.gms.google.services)
@@ -52,6 +52,9 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+    hilt {
+        enableAggregatingTask = false
     }
 }
 

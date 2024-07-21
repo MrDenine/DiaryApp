@@ -145,7 +145,7 @@ fun NavGraphBuilder.homeRoute(
     onDataLoaded: () -> Unit
 ){
     composable(route = Screen.Home.route){
-        val viewModel: HomeViewModel = viewModel()
+        val viewModel: HomeViewModel = hiltViewModel()
         val diaries by viewModel.diaries
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         var signOutDialogOpened by remember {
@@ -220,6 +220,17 @@ fun NavGraphBuilder.writeRoute(navigateBack: () -> Unit) {
 
         WriteScreen(
             moodName = { Mood.entries[pageNumber].name},
+            onBackPressed = navigateBack,
+            pagerState = pagerState,
+            galleryState = galleryState,
+            uiState = uiState,
+            onImageSelect = {
+                val type = context.contentResolver.getType(it)?.split("/")?.last() ?: "jpg"
+                viewModel.addImage(
+                    image = it,
+                    imageType = type
+                )
+            },
             onTitleChange = {
                 viewModel.setTitle(title = it)
             },
@@ -248,17 +259,6 @@ fun NavGraphBuilder.writeRoute(navigateBack: () -> Unit) {
                     }
                 )
             },
-            onImageSelect = {
-                val type = context.contentResolver.getType(it)?.split("/")?.last() ?: "jpg"
-                viewModel.addImage(
-                    image = it,
-                    imageType = type
-                )
-            },
-            onBackPressed = navigateBack,
-            pagerState = pagerState,
-            galleryState = galleryState,
-            uiState = uiState,
             onSaveClicked = {
                 scope.launch (Dispatchers.IO) {
                     viewModel.upsertDiary(
@@ -268,6 +268,7 @@ fun NavGraphBuilder.writeRoute(navigateBack: () -> Unit) {
                     )
                 }
             },
+            onImageDeleteClicked = { galleryState.removeImage(it) }
 
         )
     }

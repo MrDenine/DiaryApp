@@ -3,6 +3,7 @@ package com.denine.diaryapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -18,16 +19,19 @@ import com.denine.diaryapp.utils.Constants.APP_ID
 import com.denine.diaryapp.utils.retryDeletingImageFromFirebase
 import com.denine.diaryapp.utils.retryUploadingImageToFirebase
 import com.google.firebase.FirebaseApp
+import dagger.hilt.android.AndroidEntryPoint
 import io.realm.kotlin.mongodb.App
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var imageToUploadDao: ImageToUploadDao
+    @Inject
     lateinit var imageToDeleteDao: ImageToDeleteDao
     private var keepSplashOpened = true;
 
@@ -40,6 +44,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window,false)
         FirebaseApp.initializeApp(this)
         setContent {
+
             DiaryAppTheme (dynamicColor = false) {
                 val navController = rememberNavController()
                 SetupNavGraph(
@@ -50,13 +55,12 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             }
+//            cleanupCheck(
+//                scope = lifecycleScope,
+//                imageToUploadDao = imageToUploadDao,
+//                imageToDeleteDao = imageToDeleteDao
+//            )
         }
-
-        cleanupCheck(
-            scope = lifecycleScope,
-            imageToUploadDao = imageToUploadDao,
-            imageToDeleteDao = imageToDeleteDao
-        )
     }
 }
 
@@ -65,6 +69,7 @@ private fun cleanupCheck(
     imageToUploadDao: ImageToUploadDao,
     imageToDeleteDao: ImageToDeleteDao
 ) {
+
     scope.launch(Dispatchers.IO) {
         val result = imageToUploadDao.getAllImages()
         result.forEach { imageToUpload ->
